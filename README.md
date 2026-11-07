@@ -17,7 +17,6 @@
 [![NumPy](https://img.shields.io/badge/NumPy-Feature_Processing-013243?style=flat-square&logo=numpy&logoColor=white)](https://numpy.org/)
 ![Evaluation](https://img.shields.io/badge/Evaluation-10--Fold_CV-4C8BF5?style=flat-square)
 ![Feature Vector](https://img.shields.io/badge/Feature_Vector-96D-444444?style=flat-square)
-
 [![CI](https://github.com/tangerineYR/music-genre-classification/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tangerineYR/music-genre-classification/actions/workflows/ci.yml)
 
 <br/>

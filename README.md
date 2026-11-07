@@ -18,6 +18,8 @@
 ![Evaluation](https://img.shields.io/badge/Evaluation-10--Fold_CV-4C8BF5?style=flat-square)
 ![Feature Vector](https://img.shields.io/badge/Feature_Vector-96D-444444?style=flat-square)
 
+[![CI](https://github.com/tangerineYR/music-genre-classification/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tangerineYR/music-genre-classification/actions/workflows/ci.yml)
+
 <br/>
 
 [📐 Research Lineage](docs/lineage.md)
@@ -62,7 +64,7 @@ Feature Type
       └─ Tonnetz     → Cover_Genre
 ```
 
-2026 Portfolio Refactoring에서는 과거 결과를 그대로 재사용하지 않고, 기존 평가 과정에서 발견된 **cross-validation 이전 scaling으로 인한 data leakage를 제거**한 뒤 2025년 당시 생성한 historical 60-second audio dataset을 다시 평가했습니다.
+2026년에는 기존 평가 과정에서 발견된 **교차검증 이전 전체 데이터 스케일링으로 인한 정보 누수(Data Leakage)를 수정**하고, 2025년 프로젝트 당시 생성한 60초 WAV 데이터셋을 다시 평가했습니다. 기존 성능 수치를 재사용하지 않고 수정된 평가 절차에서 얻은 결과를 보고합니다.
 
 ### Project Info
 
@@ -78,16 +80,17 @@ Feature Type
 | **Evaluation** | Stratified 10-Fold Cross-Validation · Accuracy · Macro F1 |
 | **Historical Dataset** | AI Hub 음악 유사성 판별 데이터 기반 60-second sampled audio |
 
-> **Portfolio Refactoring**
+
+> **Evaluation Protocol**
 >
-> 2025년 프로젝트의 연구 의도와 GMM 구조는 유지하면서,
-> package/import 구조, sampling-rate 정합성, 96D feature schema,
-> deterministic source selection, dataset provenance 및 regression test를 보강했습니다.
+> 2025년 프로젝트에서 사용한 장르별 GMM 구조와 특징·음원 매핑 방식을 유지하면서, 평가의 재현성과 데이터 무결성을 검증했습니다.
 >
-> 또한 전체 데이터에 먼저 `MinMaxScaler`를 적용한 뒤 cross-validation을 수행하던 기존 평가를 폐기하고,
-> **각 fold의 training data에만 scaler를 fit하는 leakage-free evaluation**으로 실제 데이터를 재평가했습니다.
+> - 전체 데이터에 대한 사전 스케일링을 제거하고, 각 교차검증 훈련 Fold에서만 `MinMaxScaler` 학습
+> - 음원별 96차원 특징 스키마와 데이터 출처·선택 경로 기록
+> - 완전한 특징 추출이 가능한 587곡 중 장르별 39곡씩 총 234곡을 선정하여 비교
+> - 두 실험 조건에 동일한 곡과 동일한 10개 교차검증 Fold 적용
 >
-> 아래 성능 수치는 모두 이 2026년 재평가 결과이며, 과거 결과를 소급해 사용하지 않습니다.
+> README에 제시된 성능 수치는 **2026년 10월 23일에 기록된 재평가 결과**입니다. 2025년 프로젝트 당시의 성능으로 소급해 표현하지 않습니다.
 
 ---
 
@@ -112,7 +115,7 @@ flowchart TD
 
     FEATURE --> CV[Stratified<br/>10-Fold CV]
 
-    CV --> REFACTOR[2026 Portfolio Refactoring<br/>Leakage-free Re-evaluation]
+    CV --> REFACTOR[	2026 Re-evaluation<br/>Leakage-free Re-evaluation]
 ```
 
 ### 1. Original Paper
@@ -325,7 +328,7 @@ init_params    = kmeans
 random_state   = 42
 ```
 
-Portfolio Refactoring에서는 새로운 hyperparameter search를 수행해 결과에 맞춰 모델을 재조정하지 않았습니다.
+이번 재평가에서는 새로운 하이퍼파라미터 탐색을 수행하지 않고, 2025년 프로젝트에서 정한 GMM 설정을 그대로 사용했습니다.
 
 ---
 
@@ -474,7 +477,7 @@ Feature artifact에는:
 
 # 📊 Real-data Evaluation
 
-2025년에 생성한 historical 60-second dataset을 2026 Portfolio Refactoring protocol로 다시 평가했습니다.
+2025년에 생성한 60초 WAV 데이터셋을 대상으로, 2026년 10월 23일 정보 누수를 방지한 10-Fold 교차검증 절차에 따라 재평가했습니다.
 
 ### Dataset
 
@@ -518,6 +521,8 @@ Feature-aware fold std = 7.18pp
 
 이므로 해당 차이를 안정적인 성능 향상이라고 주장하기에는 근거가 부족합니다.
 
+동일한 10개 Fold를 비교하면 Feature-aware 방식은 Accuracy 기준으로 5개 Fold에서 개선됐고 나머지 5개에서는 오히려 낮은 점수를 기록했습니다. 따라서 평균 Accuracy의 +0.83%p 차이만으로 안정적이고 일관된 성능 향상을 판단하기는 어렵습니다.
+
 따라서 이 프로젝트의 결론은:
 
 > **Feature-aware source mapping이 해당 historical cohort에서 소폭 높은 평균값을 보였지만, 일관된 성능 개선을 입증하지는 못했다.**
@@ -532,20 +537,26 @@ Feature-aware fold std = 7.18pp
 
 ## Installation
 
-```bash
+Python 3.10 이상이 필요합니다. 프로젝트 루트에서 가상환경을 생성하고 의존성을 설치합니다.
+
+**Windows PowerShell**
+
+```powershell
 python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
+```
 
-# Linux / macOS
+**Linux / macOS**
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
-
-# Windows
-.venv\Scripts\activate
-
 python -m pip install -r requirements.txt
 python -m pip check
 ```
 
-Python 3.10 이상을 기준으로 합니다.
+Windows에서는 이후 명령의 `python` 대신 `.\.venv\Scripts\python.exe`를 사용하면 가상환경을 별도로 활성화하지 않고 실행할 수 있습니다.
 
 ## Historical Dataset Audit
 
@@ -554,30 +565,19 @@ Repository에는 AI Hub 음원을 포함하지 않습니다.
 2025년에 생성한 60-second historical dataset을 사용할 경우:
 
 ```bash
-python scripts/inventory_dataset.py \
-  --input "<dataset>" \
-  --output artifacts/inventory \
-  --summary-output results
+python scripts/inventory_dataset.py --input "<dataset>" --output artifacts/inventory --summary-output results
 ```
 
 ## Feature Extraction
 
 ```bash
-python scripts/build_features.py \
-  --input "<dataset>" \
-  --output artifacts/features60 \
-  --baseline-source Cover_Timbre \
-  --seconds 60
+python scripts/build_features.py --input "<dataset>" --output artifacts/features60 --baseline-source Cover_Timbre --seconds 60
 ```
 
 ## Evaluation
 
 ```bash
-python scripts/evaluate.py \
-  --baseline artifacts/features60/baseline.npz \
-  --feature-aware artifacts/features60/feature_aware.npz \
-  --inventory artifacts/inventory/dataset_inventory.json \
-  --output results
+python scripts/evaluate.py --baseline artifacts/features60/baseline.npz --feature-aware artifacts/features60/feature_aware.npz --inventory artifacts/inventory/dataset_inventory.json --output results
 ```
 
 상세한 실행 조건은 [Reproduction Guide](docs/running.md)를 참고하세요.
@@ -590,19 +590,38 @@ python scripts/evaluate.py \
 python -m unittest discover -s tests -v
 ```
 
-Regression test는 다음 invariant를 검증합니다.
 
-- 60-second sampling behavior
-- mono / sample-rate normalization
-- finite 96D feature schema
-- deterministic source selection
-- historical duration tolerance
-- atomic paired dataset construction
-- inventory decode / duplicate checks
-- train-fold-only scaling
-- shared CV folds and audited cohort consistency
+회귀 테스트는 실제 AI Hub 음원을 사용하지 않고 합성 데이터와 임시 파일을 통해 다음 항목을 검증합니다.
 
-Synthetic test 결과는 실제 음악 분류 성능으로 사용하지 않습니다.
+- Onset 기반 60초 음원 구간 추출 및 예외 처리
+- Mono 변환과 샘플링 레이트 정규화
+- 96차원 특징 벡터의 차원·순서·유한값 검증
+- 복수 음원 Variant의 결정론적 선택
+- 기존 60초 WAV의 길이 허용 오차
+- 특징 추출 실패 시 두 실험 조건의 데이터 정합성 보존
+- 데이터 인벤토리의 디코딩 실패 및 중복 음원 탐지
+- 교차검증 훈련 Fold에서만 스케일러를 학습하는지 검증
+- 두 실험 조건의 동일한 곡·레이블·교차검증 Fold 사용 여부
+
+합성 데이터 기반 테스트는 파이프라인의 동작을 검증하기 위한 것이며, 실제 음악 장르 분류 성능을 재현하거나 보장하지 않습니다.
+
+---
+
+# 🔧 Engineering Decisions & Validation
+
+| 검토 항목 | 설계 결정 | 검증 방법 |
+|---|---|---|
+| 음원 표현 통일 | 음원을 Mono 16 kHz로 불러오고, 정해진 96차원 특징 스키마를 적용 | 오디오 변환 및 특징 차원 테스트 |
+| 특징 추출 효율성 | 프레임별 특징 행렬을 한 번 계산한 뒤 계수별 평균·표준편차로 요약 | 특징값 및 차원 검증 테스트 |
+| 특징별 음원 선택 | 특징 유형에 따라 `Cover_Timbre`, `Cover_Rhythm`, `Cover_Instrument`, `Cover_Genre`를 명시적으로 매핑 | Source Mapping 및 파일 선택 테스트 |
+| 음원 선택의 재현성 | 같은 Source Family의 복수 Variant 중 상대 경로 기준 사전순 첫 파일 선택 | 결정론적 파일 선택 테스트 |
+| 데이터 누수 방지 | `MinMaxScaler`를 각 교차검증 훈련 Fold에서만 학습하고 검증 Fold에는 변환만 적용 | Fold별 Scaler 학습 범위 테스트 |
+| 표본 일관성 | 필수 음원들이 모두 존재하는 곡만 포함하고, 장르별 39곡으로 균형 표본 구성 | 데이터 인벤토리 및 균형 추출 테스트 |
+| 공정한 조건 비교 | Single-source와 Feature-aware 조건에 동일한 곡·레이블·교차검증 Fold 적용 | Paired Evaluation 테스트 |
+| 장르별 확률 모델 | 6개 장르별 GMM을 학습하고 로그 우도가 가장 높은 장르를 선택 | GMM 학습 및 예측 구현 |
+| 실험 추적성 | 선택 음원 경로, SHA-256, Fold별 검증 곡 ID, 라이브러리 버전 및 평가 지표 기록 | Source Manifest 및 평가 산출물 |
+
+현재 저장된 실험은 두 특징 추출 방식의 비교를 목적으로 하며, Feature-aware 방식의 일관된 성능 향상이나 원인·결과 관계를 입증하지 않습니다.
 
 ---
 
@@ -738,8 +757,8 @@ https://www.aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetS
 
 <div align="center">
 
-**Paper → Reproduction → Adaptation → Evaluation**
+**논문 분석 → 모델 재현 → 한국 음악 데이터 적용 → 가설 검증**
 
-_결과보다 가설과 검증 과정이 설명 가능한 모델을 만드는 데 집중했습니다._
+_높은 성능을 주장하기보다, 특징 설계의 가설을 동일한 평가 조건에서 검증하고 그 결과와 한계를 명확하게 설명하는 데 집중했습니다._
 
 </div>

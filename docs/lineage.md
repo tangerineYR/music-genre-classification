@@ -100,14 +100,14 @@ paired comparison**이며 source type의 causal effect가 아니다. 평가 모�
 ## 공개 코드 근거
 
 Historical source mapping, GMM 설정, 10-fold CV는 commit
-[`e3fecc8`](https://github.com/tangerineYR/music-genre-classification-project/tree/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4)의
+[`e3fecc8`](https://github.com/tangerineYR/music-genre-classification/tree/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4)의
 코드로 확인할 수 있다. 현재 96D 정의는 [config.py](../gmm_classifier_feature/config.py)와
 [Utilities.py](../gmm_classifier_feature/Utilities.py), paired protocol은
 [EvaluateModel.py](../gmm_classifier_feature/EvaluateModel.py)를 따른다.
 2026년 재현성 수정과 실측 결과를 2025년 구현·성능으로 소급하지 않는다.
 별도 팀 모델의 성능은 이 저장소 GMM의 성능 근거에 포함하지 않는다.
 
-[historical-readme]: https://github.com/tangerineYR/music-genre-classification-project/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/README.md
-[historical-config]: https://github.com/tangerineYR/music-genre-classification-project/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/config.py
-[historical-gmm]: https://github.com/tangerineYR/music-genre-classification-project/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/GMM_Classification.py
-[historical-evaluate]: https://github.com/tangerineYR/music-genre-classification-project/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/EvaluateModel.py
+[historical-readme]: https://github.com/tangerineYR/music-genre-classification/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/README.md
+[historical-config]: https://github.com/tangerineYR/music-genre-classification/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/config.py
+[historical-gmm]: https://github.com/tangerineYR/music-genre-classification/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/GMM_Classification.py
+[historical-evaluate]: https://github.com/tangerineYR/music-genre-classification/blob/e3fecc8cbce09e85479f3bf05dd6bbd3f1e95ed4/gmm_classifier_feature/EvaluateModel.py
